@@ -18,3 +18,7 @@ Root Folder
 ```
 출력폴더 설정 -> 압축할 폴더 설정 -> 압축하기!
 ```
+
+# License
+MIT License
+Copyright (c) 2021 qn1213
