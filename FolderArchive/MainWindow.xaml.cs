@@ -47,7 +47,7 @@ namespace FolderArchive
             BT_Clear.IsEnabled = false;
 
             Label label = new Label();
-            label.Content = "How To Use\n1. 출력할 폴더를 불러온다\n2. 압축할 폴더를 불러온다. (체크한것만 압축함)\n3. 압축버튼을 한번만 누르고 기다린다.\n\n[약속된 폴더 구조]\n메인 폴더\n   ㄴ서브폴더\n      ㄴ폴더1\n      ㄴ폴더2\n폴더1, 2만 압축되서 [서브폴더]에 저장됨";
+            label.Content = "How To Use\n1. 출력할 폴더를 불러온다\n2. 압축할 폴더를 불러온다. (체크한것만 압축함)\n3. 압축버튼을 한번만 누르고 기다린다.\n\n[약속된 폴더 구조]\n메인 폴더\n   ㄴ서브폴더\n      ㄴ폴더1\n      ㄴ폴더2\n폴더1, 2만 압축되서 [출력폴더]에 저장됨";
             wrapPanel.Children.Add(label);
             lb_FolderCount.Content = "0개폴더 중 0개 완료";
             lbl_outputPath.Content = "Select First!!";
@@ -375,7 +375,7 @@ namespace FolderArchive
             wrapPanel.Children.Clear();
 
             Label label = new Label();
-            label.Content = "How To Use\n1. 출력할 폴더를 불러온다\n2. 압축할 폴더를 불러온다. (체크한것만 압축함)\n3. 압축버튼을 한번만 누르고 기다린다.\n\n[약속된 폴더 구조]\n메인 폴더\n   ㄴ서브폴더\n      ㄴ폴더1\n      ㄴ폴더2\n폴더1, 2만 압축되서 [서브폴더]에 저장됨";
+            label.Content = "How To Use\n1. 출력할 폴더를 불러온다\n2. 압축할 폴더를 불러온다. (체크한것만 압축함)\n3. 압축버튼을 한번만 누르고 기다린다.\n\n[약속된 폴더 구조]\n메인 폴더\n   ㄴ서브폴더\n      ㄴ폴더1\n      ㄴ폴더2\n폴더1, 2만 압축되서 [출력폴더]에 저장됨";
             wrapPanel.Children.Add(label);
             lb_FolderCount.Content = "0개폴더 중 0개 완료";
             lb_log.Text = "";
