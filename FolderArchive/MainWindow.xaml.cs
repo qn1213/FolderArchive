@@ -2,22 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-
 using System.Windows.Threading;
 using Microsoft.WindowsAPICodePack.Dialogs;
-//using Ionic.Zip;
 using System.Threading;
-using System.Collections.Concurrent;
 using System.IO.Compression;
 using System.IO;
 
@@ -25,7 +15,6 @@ namespace FolderArchive
 {
     public partial class MainWindow : Window
     {
-        //public ConcurrentQueue<string> procFile = new ConcurrentQueue<string>();
         public int indexs = 0; // 작업 완료 체크용
         public string rootName;
         public string outPutFolder;
@@ -89,8 +78,6 @@ namespace FolderArchive
                     if(checkBox.IsChecked == true && folderName.Contains(checkBox.Content.ToString()))
                     {
                         procName.Add(folderName);
-                        //procFile.Enqueue(folderName);
-                        //checkBox.IsEnabled = false;
                         break;
                     }
                 }
@@ -157,9 +144,6 @@ namespace FolderArchive
                     cbName = null;
 
                     // 라벨
-                    //string tmpStep1 = tmpLB.Replace(":", "_");
-                    //string tmpStep2 = tmpStep1.Replace("\\", "_");
-
                     byte[] bytes1 = Encoding.Unicode.GetBytes(tmpLB);
                     string tmpBase64 = Convert.ToBase64String(bytes1);
                     string tmpStep1 = tmpBase64.Replace("=", "_");
@@ -212,13 +196,12 @@ namespace FolderArchive
                     // -2 => Root \ Sub
                     string sOutputFolderName = split[split.Length - 2]; // 책 제목(output폴더에 만들어질 폴더 이름
 
-
                     string savePath = outPutFolder + "\\" + sOutputFolderName;
                     System.IO.DirectoryInfo outPutFolderPath = new System.IO.DirectoryInfo(savePath);
                     if (!outPutFolderPath.Exists)
                         outPutFolderPath.Create();
 
-                    File.Move(originFilePath, savePath + "\\" + sZipName + ".zip"); // 저장할때는 해당 서브폴더 이름으로 폴더를 생성 후 저장할것.
+                    File.Move(originFilePath, savePath + "\\" + sZipName + ".zip");
 
                     Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
                     {
@@ -250,20 +233,19 @@ namespace FolderArchive
             }
             catch (Exception e)
             {
-                //MessageBox.Show(e.Message);
-                
-
                 Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
                 {
                     lb_log.Text += "\n\n" + originFilePath + " : Error!!!!" + "\n" + e.Message.ToString() + "\n\n";
 
                     Label lb = FindChild<Label>(wrapPanel, lbName);
-                    lb.Background = Brushes.Red;
+                    lb.Background = Brushes.Orange;
                     lb.Foreground = Brushes.Black;
 
                     CheckBox cb = FindChild<CheckBox>(wrapPanel, cbName);
                     cb.Background = Brushes.Red;
                     cb.Foreground = Brushes.Black;
+
+                    BT_Clear.IsEnabled= true;
                 }));
                 return;
             }
@@ -279,16 +261,12 @@ namespace FolderArchive
             System.IO.DirectoryInfo dirInfo = new System.IO.DirectoryInfo(path);
 
             if(dirInfo.Exists)
-            {                
-                //string tmpFirst = path.Replace(":", "_");
-                //string tmpPath = tmpFirst.Replace("\\", "_");
-
+            {
                 byte[] obytes = Encoding.Unicode.GetBytes(path);
                 string otmpBase64 = Convert.ToBase64String(obytes);
                 string otmpStep1 = otmpBase64.Replace("=", "_");
                 string otmpStep2 = otmpStep1.Replace("+", "_");
                 string tmpLBPath = otmpStep2.Replace("/", "_");
-
 
                 Label lbl = new Label();
                 lbl.Content = path;
@@ -303,14 +281,10 @@ namespace FolderArchive
                 btn.Click += new RoutedEventHandler(OpenFolder);
                 wrapPanel.Children.Add(btn);
 
-
                 //System.IO.DirectoryInfo[] Cinfo = dirInfo.GetDirectories("*", System.IO.SearchOption.AllDirectories);
                 System.IO.DirectoryInfo[] Cinfo = dirInfo.GetDirectories("*", System.IO.SearchOption.TopDirectoryOnly);
                 foreach(System.IO.DirectoryInfo info in Cinfo)
                 {
-                    //string tmpCbFirstPath = info.FullName.Replace(":", "_");
-                    //string tmpCbPath = tmpCbFirstPath.Replace("\\", "_");
-
                     byte[] bytes = Encoding.Unicode.GetBytes(info.FullName);
                     string tmpBase64 = Convert.ToBase64String(bytes);
                     string tmpStep1 = tmpBase64.Replace("=", "_");
