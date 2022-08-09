@@ -82,6 +82,8 @@ namespace FolderArchive
 
             process.Add(index++, bookPanel);
             jobProc.Children.Add(bookPanel);
+
+            logs.Log("[Test] : Add item");
         }
 
         private void BT_TEST_Click(object sender, RoutedEventArgs e)
