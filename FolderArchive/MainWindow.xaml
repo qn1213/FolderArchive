@@ -5,34 +5,49 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FolderArchive"
         mc:Ignorable="d"
-        Title="대충만든 이미지 압축기 by. ybm" Height="472" Width="860" WindowStartupLocation="CenterScreen">
+               Title="MainWindow" Height="500" Width="800" ResizeMode="NoResize" Closed="OnClosed" WindowStartupLocation="CenterScreen">
     <Grid>
-        <Button x:Name="BT_FolderOpen" Content="폴더선택" Margin="363,0,0,22" Click="BTFolderOpen" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="66"/>
-        <!--<Label x:Name="testlb" Content="Label" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>-->
-        <ScrollViewer Margin="10,10,454,61" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <WrapPanel Name="wrapPanel" Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            </WrapPanel>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="350"/>
+        </Grid.ColumnDefinitions>
+
+        <ScrollViewer CanContentScroll="False" HorizontalScrollBarVisibility="Auto" PanningMode="Both" Grid.Column="0" Margin="0,-2,0,2">
+            <StackPanel x:Name="jobProc" Margin="10,10,10,10" >
+
+            </StackPanel>
         </ScrollViewer>
-        <CheckBox IsThreeState="True" Name="cbAllCheck" Checked="CheckChanged" Unchecked="CheckChanged" Margin="28,0,0,25" Height="25" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" Width="72">
-            <CheckBox.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform Angle="-1.633"/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </CheckBox.RenderTransform> CheckAll
-        </CheckBox>
-        <Label Content="➜" HorizontalAlignment="Left" Margin="325,0,0,20" Height="26" VerticalAlignment="Bottom"/>
-        <Label Content="폴더 확인" Margin="474,0,0,17" FontWeight="Bold" FontSize="14" HorizontalAlignment="Left" Width="112" Height="29" VerticalAlignment="Bottom"/>
-        <Button x:Name="BT_Compress" Content="압축 하기" Margin="589,0,0,22" Click="BTCompress" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="66"/>
-        <Label Content="➜" Margin="552,0,0,19" Height="26" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="22"/>
-        <Button x:Name="BT_Clear" Content="선택 초기화" Margin="760,0,0,24" Click="BTClear" HorizontalAlignment="Left" Width="76" Height="26" VerticalAlignment="Bottom"/>
-        <Button x:Name="BT_Select_Ouput" Content="출력폴더 선택" Margin="230,0,0,21" Click="BTSelectOuput" HorizontalAlignment="Left" Width="80" Height="25" VerticalAlignment="Bottom"/>
-        <Label x:Name="lb_FolderCount" Content="Label" HorizontalAlignment="Left" Margin="10,0,0,4" Width="147" Height="27" VerticalAlignment="Bottom"/>
-        <Label x:Name="lbl_outputPath" Content="Label" HorizontalAlignment="Left" Margin="228,0,0,0" Height="26" VerticalAlignment="Bottom"/>
-        <Label Content="➜" Margin="438,0,0,20" Height="26" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="22"/>
-        <TextBox x:Name="lb_log" HorizontalAlignment="Left" Margin="430,10,0,61" TextWrapping="Wrap" Width="406" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" IsReadOnly="True" Background="White" BorderBrush="{x:Null}" TextChanged="LogChanged"/>
-        <Border BorderBrush="#FFD8D8D8" BorderThickness="1" HorizontalAlignment="Left" Margin="414,10,0,61" Width="11" Background="#7FDADADA"/>
+
+        <StackPanel Grid.Column="1">
+            <Label Content="Packet Transfer" FontWeight="ExtraBold" FontSize="30" HorizontalAlignment="Center"/>
+            <StackPanel Margin="0, 30, 0,0">
+                <WrapPanel>
+                    <Label Content="Output Path" Margin="10,10,0,0" FontWeight="Bold" FontSize="20"/>
+                    <Button x:Name="BT_Output" Margin="10, 15, 0, 0" Content="Select" Height="20" Width="40" Click="BT_SetOutputFolder_Click"/>
+                    <Button x:Name="BT_OpenOutput" Margin="10, 15, 0, 0" Content="Open" Height="20" Width="40" Click="BT_ShowOutputFolder_Click"/>
+                </WrapPanel>
+                <Label x:Name="LB_OutputPath" Content="path here" Margin="20,-10,0,0"/>
+
+                <WrapPanel>
+                    <Label Content="Input Path" Margin="10,10,0,0" FontWeight="Bold" FontSize="20"/>
+                    <Button x:Name="BT_Iutput" Margin="27, 15, 0, 0" Content="Select" Height="20" Width="40" Click="BT_SetInputFolder_Click"/>
+                    <Button x:Name="BT_OpenIutput" Margin="10, 15, 0, 0" Content="Open" Height="20" Width="40" Click="BT_ShowInputFolder_Click"/>
+                </WrapPanel>
+                <Label x:Name="LB_InputPath" Content="path here" Margin="20, -10,0,0"/>
+
+            </StackPanel>
+
+            <StackPanel Margin="0, 70, 0,0">
+                <Button x:Name="BT_Start" Content="Start!" HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="80" Click="BT_Start_Click"/>
+                <Button x:Name="BT_Log" Content="Log" Margin="0,30,0,0" Width="62" Click="BT_Log_Click"/>
+            </StackPanel>
+
+            <StackPanel Margin="0,30,0,0">
+                <Button Content="Add" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Click="BT_Test_Click"/>
+                <Button x:Name="BT_TEST" Content="Change" HorizontalAlignment="Center" Margin="0,0,0,0" VerticalAlignment="Top" Click="BT_TEST_Click"/>
+                <TextBox x:Name="TB_Book" HorizontalAlignment="Center" Margin="0,0,0,0" TextWrapping="Wrap" Text="0" Width="59"/>
+                <TextBox x:Name="TB_Part" HorizontalAlignment="Center" Margin="0,0,0,0" TextWrapping="Wrap" Text="0" Width="59"/>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Window>
