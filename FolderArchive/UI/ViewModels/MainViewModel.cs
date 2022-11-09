@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace FastHDLsearch.ViewModels
 {
@@ -18,6 +11,8 @@ namespace FastHDLsearch.ViewModels
         //public RelayCommand MessageBoxCommand { get; private set; }
         public RelayCommand TabButtonCommand { get; set; }
         public RelayCommand HyperlinkButtonCommand { get; set; }
+        //public RelayCommand ButtonStart { get; set; }
+
         private int _selectedIndex = 0;
         public int SelectedIndex
         {
@@ -47,19 +42,11 @@ namespace FastHDLsearch.ViewModels
 
         public MainViewModel()
         {
-            MyMessages = new ObservableCollection<string>()
-            {
-                "Hello World!",
-                "My name is Joe",
-                "I love learning commands",
-                "Im a message box",
-                "Im a console"
-            };
-
             //MessageBoxCommand = new RelayCommand(DisplayInMessageBox, MessageBoxCanUse);
-            TabButtonCommand = new RelayCommand(TabButtonClicked);
-            SelectedbackgroundIndex = SelectedIndex + 1;
-            HyperlinkButtonCommand = new RelayCommand(OpenHyperlink);
+            this.TabButtonCommand = new RelayCommand(TabButtonClicked);
+            this.SelectedbackgroundIndex = this.SelectedIndex + 1;
+            this.HyperlinkButtonCommand = new RelayCommand(OpenHyperlink);
+            //this.ButtonStart = new RelayCommand(StartCompress);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -69,46 +56,28 @@ namespace FastHDLsearch.ViewModels
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
 
-
-        //public void DisplayInMessageBox(object message)
-        //{
-        //    MessageBox.Show((string)message);
-        //}
-
         public void TabButtonClicked(object index)
         {
-            Debug.WriteLine("test"+SelectedIndex);
-            SelectedIndex = int.Parse(index.ToString() ?? "0");
-            SelectedbackgroundIndex = SelectedIndex+1;
+            Debug.WriteLine("Tab" + this.SelectedIndex);
+            this.SelectedIndex = int.Parse(index.ToString() ?? "0");
+            this.SelectedbackgroundIndex = this.SelectedIndex+1;
             
         }
         public void OpenHyperlink(object uri)
         {
-            if (uri == "")
+            if ((string)uri == "")
             {
-                System.Diagnostics.Process.Start(new ProcessStartInfo("https://null") { UseShellExecute = true });
+                System.Diagnostics.Process.Start(new ProcessStartInfo("https://github.com/qn1213/FolderArchive") { UseShellExecute = true });
             }
             else
             {
                 System.Diagnostics.Process.Start(new ProcessStartInfo(uri.ToString() ?? "https://null") { UseShellExecute = true });
-            }
-            
+            }            
         }
 
-        public bool MessageBoxCanUse(object message)
-        {
-            if ((string)message == "Im a console")
-                return false;
-
-            return true;
-        }
-
-        public bool ConsoleCanUse(object message)
-        {
-            if ((string)message == "Im a message box")
-                return false;
-
-            return true;
-        }
+        //public void StartCompress(object inputPath)
+        //{
+        //    MessageBox.Show((string)inputPath);
+        //}
     }
 }

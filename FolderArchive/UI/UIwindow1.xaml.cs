@@ -12,7 +12,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-
+using Microsoft.WindowsAPICodePack.Dialogs;
+using System.IO;
 
 namespace FolderArchive.UI
 {
@@ -22,27 +23,42 @@ namespace FolderArchive.UI
     public partial class UIwindow1 : Window
     {
         Button[] tabbuttons;
+        FileInfo saveFile;
+
+        string saveFilePath = "config.sav";
+        string inputDir;
+        string outputDir;
+
         public UIwindow1()
         {
             InitializeComponent();
 
             DataContext = new MainViewModel();
-            tabbuttons = new Button[] { xn_tabbutton1, xn_tabbutton2, xn_tabbutton3 };
+            tabbuttons = new Button[] { xn_tabbutton1, xn_tabbutton2 };
+
+            DoStartInit();
+
+
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void DoStartInit()
         {
-            
-            if (outputPathSettings_combobox.SelectedIndex == 2)
+            saveFile = new FileInfo(saveFilePath);
+            FileStream fs = null;
+            if(!saveFile.Exists)
             {
-                outputPathSettings.IsEnabled = true;
-                outputPathSettings_button.Visibility = Visibility.Visible;
+                fs = saveFile.Create();
+                fs.Close();
             }
-            else
-            {
-                outputPathSettings.IsEnabled = false;
-                outputPathSettings_button.Visibility = Visibility.Hidden;
-            }
+
+            fs = saveFile.OpenRead();
+            StreamReader sr = new StreamReader(fs);
+            inputDir = sr.ReadLine();
+            outputDir = sr.ReadLine();
+
+            TB_InPutPath.Text = String.IsNullOrEmpty(inputDir) == true ? "Select Input Folder" : inputDir;
+            TB_OutPutPath.Text = String.IsNullOrEmpty(outputDir) == true ? "Select output Folder" : outputDir;
+            AddLog("Init Program");
         }
 
         private void xn_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -57,8 +73,91 @@ namespace FolderArchive.UI
                 {
                     btit.value.IsEnabled = true;
                 }
-
             }
+        }
+
+        private void Button_Start_Click(object sender, RoutedEventArgs e)
+        {
+            Compress compress = new Compress(this, outputDir, inputDir);
+            compress.Start();
+        }
+
+        private void Button_Init(object sender, RoutedEventArgs e)
+        {
+            ClearLog();
+        }
+
+        private void BT_InputPath_Click(object sender, RoutedEventArgs e)
+        {
+            CommonOpenFileDialog ofd = new CommonOpenFileDialog();
+            ofd.IsFolderPicker = true;
+
+            if(ofd.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                if(this.inputDir == ofd.FileName)
+                {
+                    MessageBox.Show("선택한 폴더와 경로가 같습니다.");
+                    return;
+                }
+
+                this.inputDir = ofd.FileName;
+                TB_InPutPath.Text = this.inputDir;
+            }
+            AddLog("Add InputDir : " + this.inputDir);           
+        }
+
+        private void BT_SetList_Click(object sender, RoutedEventArgs e)
+        {
+            // 프로그램 종료될 때 패스 저장하기ㅣ
+        }
+
+        private void BT_OutputPath_Click(object sender, RoutedEventArgs e)
+        {
+            CommonOpenFileDialog ofd = new CommonOpenFileDialog();
+            ofd.IsFolderPicker = true;
+
+            if (ofd.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                if (this.outputDir == ofd.FileName)
+                {
+                    MessageBox.Show("선택한 폴더와 경로가 같습니다.");
+                    return;
+                }
+
+                this.outputDir = ofd.FileName;
+                TB_OutPutPath.Text = this.outputDir;
+            }
+            AddLog("Add outputDir : " + this.outputDir);
+        }
+
+        public void AddLog(string log)
+        {
+            string tmp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            string time = "[" + tmp + "] : ";
+            TB_Log.Text += time + log + "\n";
+        }
+
+        private void ClearLog()
+        {
+            TB_Log.Text = "";
+        }
+
+        private void SaveConfig(string input = null, string output = null)
+        {
+            FileStream fs = saveFile.OpenWrite();
+            TextWriter tw = new StreamWriter(fs);
+
+            tw.WriteLine(input);
+            tw.Write(output);
+
+            tw.Close();
+            fs.Close();
+        }
+
+        private void DoClosed(object sender, EventArgs e)
+        {
+            SaveConfig(String.IsNullOrEmpty(inputDir) == true ? null : inputDir, this.outputDir);
+            SaveConfig(this.inputDir, String.IsNullOrEmpty(outputDir) == true ? null : outputDir);
         }
     }
 }

@@ -228,7 +228,7 @@ namespace FolderArchive
                 return;
             }
 
-            Compress compress = new Compress(this, this.outputFolder, this.inputFolder);
+            //Compress compress = new Compress(this, this.outputFolder, this.inputFolder);
         }
 
         private void BT_Log_Click(object sender, RoutedEventArgs e)

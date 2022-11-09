@@ -1,8 +1,10 @@
-﻿using System;
+﻿using FolderArchive.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace FolderArchive
 {
@@ -11,25 +13,27 @@ namespace FolderArchive
         private string outPutPath;
         private string inputPaht;
 
-        protected MainWindow mainWindow;
+        protected UIwindow1 window;
         private Dictionary<string, Book> book;
 
-        public Compress(MainWindow window, string outPut, string inPut)
+        public Compress(UIwindow1 window, string outPut, string inPut)
         {
             this.book = new Dictionary<string, Book>();
 
-            this.mainWindow = window;
+            this.window = window;
+
             this.outPutPath = outPut;
             this.inputPaht = inPut;
         }
 
-        public bool Start()
+        public void Start()
         {
+            // 인풋 폴더안에 있는 만화, 화수 가져와서 객체화해서 뿌리기
+            GetBookandParts();
 
-            return true;
+
         }
 
-        // 인풋 폴더안에 있는 만화, 화수가져와서 객체화하기
         private void GetBookandParts()
         {
 

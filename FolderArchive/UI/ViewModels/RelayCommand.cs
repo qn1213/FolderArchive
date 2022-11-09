@@ -17,8 +17,8 @@ namespace FastHDLsearch.ViewModels
             if (execute == null)
                 throw new ArgumentNullException("execute");
 
-            _execute = execute;
-            _canExecute = canExecute;
+            this._execute = execute;
+            this._canExecute = canExecute;
         }
 
         public RelayCommand(Action<object> execute) : this(execute, null)
@@ -34,12 +34,12 @@ namespace FastHDLsearch.ViewModels
 
         public bool CanExecute(object parameter)
         {
-            return _canExecute == null ? true : _canExecute(parameter);
+            return this._canExecute == null ? true : this._canExecute(parameter);
         }
 
         public void Execute(object parameter)
         {
-            _execute(parameter);
+            this._execute(parameter);
         }
     }
 }
