@@ -370,7 +370,7 @@
                                       Margin="10"
                                       VerticalScrollBarVisibility="Auto">
                             <StackPanel x:Name="jobProc" Background="WhiteSmoke" Margin="5">
-                                
+
                             </StackPanel>
                         </ScrollViewer>
 
@@ -473,6 +473,16 @@
                                     FontFamily="Poppins"
                                     FontWeight="Regular"
                                     Style="{DynamicResource SearchButton}" Click="Button_Init" Background="White"/>
+
+                            <Button                           
+                                    Height="40"
+                                    Margin="100,5,100,10"
+                                    Visibility="Visible"
+                                    Content="{iconPacks:Codicons Kind=DebugRestart, Width=25}"
+                                    FontFamily="Poppins"
+                                    FontWeight="Regular"
+                                    Style="{DynamicResource SearchButton}" Click="Button_test_Click"/>
+
                         </StackPanel>
                     </Grid>
                 </TabItem>

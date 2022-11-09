@@ -9,22 +9,14 @@ namespace FolderArchive
 {
     internal class Book
     {
-        public string name; // 책 이름
-        public string path; // 저장경로/책이름
+        public int index = 0;
+        public int status = 0; // 0 = 대기, 1 = 완료, -1 = 오류
 
-        public List<Part> parts { get; private set; } // 한개의 책이 몇개의 파트를 가지고 있는가 저장용
-        public int count { get; private set; } // 파트가 몇개인가
+        public string bookName = null;
 
-        public Book(string name, string path)
-        {
-            this.name = name;
-            this.path = path;
-            parts = new List<Part>();
-        }
+        public string partName = null;
+        public int partCnt = 0;
 
-        public void AddParts(Part part)
-        {
-            parts.Add(part);
-        }
+        public string error = null;
     }
 }
