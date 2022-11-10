@@ -5,11 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:local="clr-namespace:FolderArchive.UI"
+        xmlns:viewmodels="clr-namespace:FastHDLsearch.ViewModels"
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel}"
         mc:Ignorable="d"
         Title="Zip"
         Height="500"
         Width="860"
-        ResizeMode="NoResize" Closed="DoClosed">
+        ResizeMode="NoResize"
+        Closed="DoClosed">
 
     <Window.Resources>
 
@@ -259,7 +262,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <!--  Menu Sector  -->
+        <!--  Menu Button Sector  -->
         <Grid Margin="5,10,0,10"
               Grid.Column="0"
               Cursor="Hand">
@@ -301,6 +304,18 @@
                             HorizontalContentAlignment="Left"
                             Command="{Binding TabButtonCommand}"
                             CommandParameter="1"
+                            Style="{DynamicResource TabButtonStyle}"/>
+
+                    <Button x:Name="xn_tabbutton3"
+                            FontSize="14"
+                            Content="{iconPacks:Material Kind=Cog}"
+                            Height="35"
+                            Padding="10,0,0,0"
+                            Margin="4"
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Left"
+                            Command="{Binding TabButtonCommand}"
+                            CommandParameter="2"
                             Style="{DynamicResource TabButtonStyle}"/>
                 </StackPanel>
             </Border>
@@ -369,9 +384,9 @@
                                       Grid.Column="0"
                                       Margin="10"
                                       VerticalScrollBarVisibility="Auto">
-                            <StackPanel x:Name="jobProc" Background="WhiteSmoke" Margin="5">
-
-                            </StackPanel>
+                            <StackPanel x:Name="jobProc"
+                                        Background="WhiteSmoke"
+                                        Margin="5"/>
                         </ScrollViewer>
 
                         <!--  SearchRegion  -->
@@ -410,9 +425,11 @@
                                                 VerticalAlignment="Top"
                                                 BorderThickness="0"
                                                 Opacity="1"
-                                                Content="{iconPacks:Material Kind=Folder, Width=16}"
-                                                Style="{DynamicResource TabButtonStyle}" Click="BT_InputPath_Click"/>
-                                    </Grid>                                    
+                                                Content="{iconPacks:Material Kind=Folder,
+                                                                             Width=16}"
+                                                Style="{DynamicResource TabButtonStyle}"
+                                                Click="BT_InputPath_Click"/>
+                                    </Grid>
                                 </StackPanel>
                             </Border>
 
@@ -430,8 +447,7 @@
                                                TextAlignment="Left"
                                                TextWrapping="Wrap"/>
 
-                                    <Grid x:Name="outputPathSettings"
-                                          Margin="0,5,0,0">
+                                    <Grid x:Name="outputPathSettings" Margin="0,5,0,0">
                                         <TextBox x:Name="TB_OutPutPath"
                                                  IsReadOnly="True"
                                                  MaxHeight="40"
@@ -451,37 +467,45 @@
                                                 VerticalAlignment="Top"
                                                 BorderThickness="0"
                                                 Opacity="1"
-                                                Content="{iconPacks:Material Kind=Folder, Width=16}"
-                                                Style="{DynamicResource TabButtonStyle}" Click="BT_OutputPath_Click"/>
+                                                Content="{iconPacks:Material Kind=Folder,
+                                                                             Width=16}"
+                                                Style="{DynamicResource TabButtonStyle}"
+                                                Click="BT_OutputPath_Click"/>
                                     </Grid>
                                 </StackPanel>
                             </Border>
 
-                            <Button
-                                    Height="40"
+                            <Button Height="40"
                                     Margin="100,100,100,10"
                                     Visibility="Visible"
-                                    Content="{iconPacks:VaadinIcons Kind=FileStart, Width=25, Height=25}"
+                                    Content="{iconPacks:VaadinIcons Kind=FileStart,
+                                                                    Width=25,
+                                                                    Height=25}"
                                     FontFamily="Poppins"
                                     FontWeight="Regular"
-                                    Style="{DynamicResource SearchButton}" Click="Button_Start_Click"/>
-                            <Button                           
-                                    Height="40"
+                                    Style="{DynamicResource SearchButton}"
+                                    Click="Button_Start_Click"/>
+                            <Button Height="40"
                                     Margin="100,5,100,10"
                                     Visibility="Visible"
-                                    Content="{iconPacks:Codicons Kind=DebugRestart, Width=25}"
+                                    Content="{iconPacks:Codicons Kind=DebugRestart,
+                                                                 Width=25}"
                                     FontFamily="Poppins"
                                     FontWeight="Regular"
-                                    Style="{DynamicResource SearchButton}" Click="Button_Init" Background="White"/>
+                                    Style="{DynamicResource SearchButton}"
+                                    Click="Button_Init"
+                                    Background="White"/>
 
-                            <Button                           
-                                    Height="40"
+                            <Button Height="40"
                                     Margin="100,5,100,10"
                                     Visibility="Visible"
-                                    Content="{iconPacks:Codicons Kind=DebugRestart, Width=25}"
+                                    Content="{iconPacks:Codicons Kind=DebugAlt,
+                                                                 Width=25,
+                                                                 Height=20}"
                                     FontFamily="Poppins"
                                     FontWeight="Regular"
-                                    Style="{DynamicResource SearchButton}" Click="Button_test_Click"/>
+                                    Style="{DynamicResource SearchButton}"
+                                    Click="Button_test_Click"/>
 
                         </StackPanel>
                     </Grid>
@@ -491,10 +515,109 @@
                 <TabItem Header="" Style="{DynamicResource TabItemStyle}">
                     <Grid>
                         <Border Margin="10,0,10,0" Style="{DynamicResource SettingsElementStyle}">
-                            <TextBox x:Name="TB_Log" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Width="700" />
-                        </Border>                        
-                    </Grid>                  
+                            <TextBox x:Name="TB_Log"
+                                     IsReadOnly="True"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     TextWrapping="Wrap"
+                                     Width="700"/>
+                        </Border>
+                    </Grid>
                 </TabItem>
+
+                <!--  tabitem3  -->
+                <TabItem Header="" Style="{DynamicResource TabItemStyle}">
+                    <Grid>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+
+                            <StackPanel>
+                                <Border Height="95"
+                                        Margin="10,10,10,0"
+                                        Style="{DynamicResource SettingsElementStyle}">
+                                    <StackPanel>
+                                        <TextBlock Text="Path"
+                                                   Foreground="Black"
+                                                   Width="64"
+                                                   Height="21"
+                                                   Margin="10,0,0,0"
+                                                   HorizontalAlignment="Left"
+                                                   VerticalAlignment="Top"
+                                                   FontSize="16"
+                                                   TextAlignment="Left"
+                                                   TextWrapping="Wrap"/>
+
+                                        <Grid>
+                                            <TextBox x:Name="xn_TextboxPath"
+                                                     Width="546"
+                                                     MaxHeight="40"
+                                                     Margin="10"
+                                                     HorizontalAlignment="Left"
+                                                     VerticalAlignment="Top"
+                                                     Padding="0,0,30,0"
+                                                     HorizontalScrollBarVisibility="Disabled"
+                                                     ScrollViewer.CanContentScroll="True"
+                                                     TextWrapping="Wrap"
+                                                     VerticalScrollBarVisibility="Auto"/>
+                                            <Button x:Name="xn_BTpath"
+                                                    Width="22"
+                                                    Height="18"
+                                                    Margin="561,0,0,0"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center"
+                                                    BorderThickness="0"
+                                                    Opacity="1"
+                                                    Content="{iconPacks:Material Kind=Folder,
+                                                                                 Width=16}"
+                                                    Style="{DynamicResource TabButtonStyle}"/>
+                                        </Grid>
+
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Margin="10,0,10,0" Style="{DynamicResource SettingsElementStyle}">
+                                    <StackPanel>
+
+                                        <TextBlock FontSize="16"
+                                                   Text="Search Wrapping"
+                                                   Foreground="Black"
+                                                   Margin="10,9,0,0"/>
+
+
+
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="0,10,0,0"
+                                                    VerticalAlignment="Center">
+                                            <CheckBox x:Name="xn_isSearchWrapping"
+                                                      Margin="10,0,0,0"
+                                                      FontSize="14"
+                                                      HorizontalAlignment="Left"
+                                                      VerticalAlignment="Top"
+                                                      VerticalContentAlignment="Center"
+                                                      Style="{DynamicResource styleCustomCheckBox}">
+                                                <CheckBox.LayoutTransform>
+                                                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                                                </CheckBox.LayoutTransform>
+                                            </CheckBox>
+
+                                            <TextBlock Text="검색시 각 항목을 ()로 감싸줍니다."
+                                                       Foreground="Black"
+                                                       Width="273"
+                                                       Margin="5,0,0,0"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="12"
+                                                       TextAlignment="Left"/>
+                                        </StackPanel>
+
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                    </Grid>
+                </TabItem>
+
+
             </TabControl>
         </Grid>
 
