@@ -2,27 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.IO;
-using System.Diagnostics;
-using System.Reflection;
-using Microsoft.WindowsAPICodePack.Controls;
 
 namespace FolderArchive.UI
 {
-    /// <summary>
-    /// UIwindows.xaml에 대한 상호 작용 논리
-    /// </summary>
     public partial class UIwindow1 : Window
     {
         Button[] tabbuttons;
@@ -204,7 +191,7 @@ namespace FolderArchive.UI
 
         public void AddLog(string log)
         {
-            string tmp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            string tmp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             string time = "[" + tmp + "] : ";
             TB_Log.Text += time + log + "\n";
         }
@@ -231,11 +218,6 @@ namespace FolderArchive.UI
             SaveConfig(CheckInputPath() ? null : inputPath, CheckOutputPath() ? defaultOutputPath : outputPath);
         }
 
-        /// <summary>
-        /// intput, output path가 null인지 아닌지 확인용
-        /// </summary>
-        /// <param name="pathDir"></param> 둘다 비었는지, intput만 비었는지, output만 비었는지
-        /// <param name="isNull"></param> 비어있는지, 입력 되어있는지
         public bool CheckInputPath()
         {
             return String.IsNullOrEmpty(inputPath);
