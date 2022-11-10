@@ -17,7 +17,7 @@ namespace FolderArchive
         private string inputPath;
         private string outPutPath;
 
-        private int bookIndex = 0;
+        public int bookIndex = 0;
         
         protected UIwindow1 window;
 
@@ -26,15 +26,12 @@ namespace FolderArchive
 
         private bool isFisrt = true;
 
-        private ILogs log;
-
         public Compress(UIwindow1 window)
         {
             dic_book = new Dictionary<int, Book>();
             list_exception_book = new List<Book>();
 
             this.window = window;
-            log = this.window;
         }
 
         public void InitPath()
@@ -45,15 +42,7 @@ namespace FolderArchive
 
         public void Start()
         {
-            // 테스트 코드
-            //foreach (KeyValuePair<int, Book> items in dic_book)
-            //{
-            //    int rndIndex = rnd.Next(1, 5);
-            //    items.Value.ChangeStatus((Utill.PROCESS_STAT)rndIndex);
-            //}
-
-
-            // 찐 코드
+            // 싱글 스레드용
             StartLowSpec();
         }
 
@@ -74,6 +63,14 @@ namespace FolderArchive
                 for (int i = 0; i < part.partCnt; i++)
                 {
                     string outputFileName = $"{outputBookFolderName}\\{part.partPathWithName[part.partPath[i]]}.zip";
+                    FileInfo checkFile = new FileInfo(outputFileName);
+                    if(checkFile.Exists)
+                    {
+                        dic_book[key].ChangeStatus(Utill.PROCESS_STAT.ERROR, i);
+                        window.AddLog($"{part.partPath[i]} => 파일이 이미 존재합니다.");
+                        continue;
+                    }
+
                     try
                     {
                         ZipFile.CreateFromDirectory(part.partPath[i], outputFileName);

@@ -68,8 +68,7 @@ namespace FolderArchive.UI
             if (CheckInputPath() == false)
             {
                 InitCompress();
-            }
-                
+            }                
         }
 
         private void InitCompress()
@@ -97,9 +96,9 @@ namespace FolderArchive.UI
 
         private void Button_Start_Click(object sender, RoutedEventArgs e)
         {
-            if(CheckInputPath())
+            if(CheckInputPath() || compress.bookIndex == 0)
             {
-                MessageBox.Show("입력폴더가 비어있어요!");
+                MessageBox.Show("압축할 폴더를 불러와주세요!");
                 return;
             }
             compress.Start();
@@ -108,6 +107,7 @@ namespace FolderArchive.UI
         private void Button_Init(object sender, RoutedEventArgs e)
         {
             ClearLog();
+            compress.Init();
         }
 
         private void BT_InputPath_Click(object sender, RoutedEventArgs e)
@@ -117,12 +117,6 @@ namespace FolderArchive.UI
 
             if(ofd.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                if(this.inputPath == ofd.FileName)
-                {
-                    MessageBox.Show("선택한 폴더와 경로가 같습니다.");
-                    return;
-                }
-
                 this.inputPath = ofd.FileName;
                 TB_InPutPath.Text = this.inputPath;
             }
