@@ -99,12 +99,15 @@ namespace FolderArchive
                 window.AddLog(logIndex++ + ". : " + items.Value.bookPath);
             }
 
-            window.AddLog("################ 로드 실패한 폴더 ################");
-            logIndex = 1;
-            foreach (Book items in list_exception_book)
+            if(list_exception_book.Count > 0)
             {
-                window.AddLog(logIndex++ + ". : " + items.bookPath + " => " + items.Error);
-            }
+                window.AddLog("################ 로드 실패한 폴더 ################");
+                logIndex = 1;
+                foreach (Book items in list_exception_book)
+                {
+                    window.AddLog(logIndex++ + ". : " + items.bookPath + " => " + items.Error);
+                }
+            }            
         }
 
         private bool AddObject(DirectoryInfo rootInfo, ref Book book)
@@ -112,48 +115,7 @@ namespace FolderArchive
             try
             {
                 DirectoryInfo[] part = rootInfo.GetDirectories("*", SearchOption.TopDirectoryOnly);
-
-                WrapPanel wrapPanel = new WrapPanel();
-
-                book.SetBook(rootInfo.Name, rootInfo.FullName);
-                book.parts.partCnt = part.Length;
-                if (book.parts.partCnt == 0)
-                {
-                    book.Error = "Part Count is 0";
-                    return false;
-                }
-
-                CheckBox checkBox = new CheckBox();
-                checkBox.Name = book.GetBase64Name(Book.BASE_TYPE.BOOK);
-                checkBox.IsChecked = true;
-                checkBox.Margin = new Thickness(5);
-                wrapPanel.Children.Add(checkBox);
-
-                StackPanel partPanel = new StackPanel();
-                partPanel.Margin = new Thickness(10, 4, 0, 0);
-                //partPanel.Name = "";
-
-                // 화수
-                foreach (DirectoryInfo partDir in part)
-                {
-                    book.parts.AddPartInfo(partDir.Name, partDir.FullName);
-                    Label partLabel = new Label();
-                    partLabel.Content = "· " + partDir.Name;
-                    partLabel.Name = book.GetBase64Name(Book.BASE_TYPE.PARTS, partDir.Name);
-                    partPanel.Children.Add(partLabel);
-                }
-
-                Expander expander = new Expander();
-                expander.Name = book.GetBase64Name(Book.BASE_TYPE.BOOK);
-                expander.Header = book.bookName + " (총 " + book.parts.partCnt + "화)";
-                expander.Content = partPanel;
-
-                wrapPanel.Children.Add(expander);
-
-                // 완료시 이걸로!
-                //wrapPanel.Background = Brushes.Green;
-
-                window.jobProc.Children.Add(wrapPanel);
+                book.SetObjectBookInfo(ref part, rootInfo.Name, rootInfo.FullName, ref window);
             }
             catch (Exception ex)
             {
