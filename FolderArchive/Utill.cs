@@ -5,6 +5,14 @@ namespace FolderArchive
 {
     static class Utill
     {
+        public enum PROCESS_STAT
+        {
+            ALL_DONE = 1, // 한 폴더가 끝났을 때
+            PART_DONE,    // n번째 파트 끝
+            PROCESS,      // n번째 파트 압축중
+            ERROR,        // 파트중 에러나면 폴더이름에 에러띄움
+        }
+
         public static string Convert64(string msg)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(msg);

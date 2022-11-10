@@ -264,6 +264,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ICallBack.cs" />
     <Compile Include="UI\UIwindow1.xaml.cs">
       <DependentUpon>UIwindow1.xaml</DependentUpon>
     </Compile>

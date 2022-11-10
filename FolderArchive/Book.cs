@@ -7,11 +7,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Threading;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Xml.Linq;
+using System.Windows;
 
 namespace FolderArchive
 {
-    internal class Book
+    internal class Book : ICallBack
     {
         public enum BASE_TYPE
         {
@@ -32,6 +36,8 @@ namespace FolderArchive
         public string bookName64 = null;
         public string bookPath = null;
 
+        public object colorLock = null;
+
         public Part parts;
 
         public string Error
@@ -39,11 +45,13 @@ namespace FolderArchive
             get { return this.error; }
             set { this.error = value; }
         }
+
         private string error = null;
 
         public Book()
         {
             parts = new Part();
+            colorLock = new object();
         }
 
         public void SetBook(string name, string path)
@@ -60,6 +68,7 @@ namespace FolderArchive
             bookName = name;
             bookName64 = Utill.Convert64(bookName);
             bookPath = path;
+            parts.partCnt = part.Length;
 
             labels = new List<Label>();
 
@@ -110,6 +119,53 @@ namespace FolderArchive
                     return null;
             }
         }
+
+        public void ChangeStatus(Utill.PROCESS_STAT stat, int partIndex = 0)
+        {
+            //lock(colorLock)
+            //{
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
+            {
+                bool isAllGood = true;
+                switch (stat)
+                {
+                    case Utill.PROCESS_STAT.ALL_DONE:
+                        wrapPanel.Background = Brushes.Green;
+                        foreach (Label label in labels)
+                        {
+                            if (label.Background != Brushes.Green)
+                            {
+                                isAllGood = false;
+                                continue;
+                            }
+
+                            label.Background = Brushes.Green;
+                        }
+
+                        if (!isAllGood) wrapPanel.Background = Brushes.OrangeRed;
+                        break;
+
+                    case Utill.PROCESS_STAT.PART_DONE:
+                        labels[partIndex].Background = Brushes.Green;
+                        break;
+
+                    case Utill.PROCESS_STAT.PROCESS:
+                        wrapPanel.Background = Brushes.Yellow;
+                        foreach (Label label in labels)
+                            label.Background = Brushes.White;
+                        break;
+
+                    case Utill.PROCESS_STAT.ERROR:
+                        labels[partIndex].Background = Brushes.Red;
+                        break;
+
+                    default:
+                        break;
+                }
+            }));
+            
+            //}
+        }
     }
 
     class Part
@@ -119,6 +175,7 @@ namespace FolderArchive
 
         public int partCnt = 0;
         public List<string> partPath;
+        public Dictionary<string, string> partPathWithName;
 
         public Part()
         {
@@ -127,6 +184,8 @@ namespace FolderArchive
             partNameWith64 = new Dictionary<string, string>();
 
             partPath = new List<string>();
+
+            partPathWithName = new Dictionary<string, string>();
         }
 
         public void AddPartInfo(string name, string path)
@@ -136,6 +195,8 @@ namespace FolderArchive
             partNameWith64.Add(name, Utill.Convert64(name));
 
             partPath.Add(path);
+
+            partPathWithName.Add(path, name);
         }
 
         public string GetPartName64(string partName)

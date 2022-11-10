@@ -10,11 +10,13 @@ using System.IO;
 
 namespace FolderArchive.UI
 {
-    public partial class UIwindow1 : Window
+    public partial class UIwindow1 : Window, ILogs
     {
         Button[] tabbuttons;
         FileInfo saveFile;
+
         Compress compress;
+
         string saveFilePath = "config.sav";
         string defaultOutputPath;
         public string inputPath;
@@ -58,7 +60,7 @@ namespace FolderArchive.UI
                 outputPath = defaultOutputPath;
             }
             TB_OutPutPath.Text = outputPath;
-            AddLog("Init Program");
+            Log("Init Program");
         }
 
         private void DoInit()
@@ -100,7 +102,7 @@ namespace FolderArchive.UI
                 MessageBox.Show("입력폴더가 비어있어요!");
                 return;
             }
-
+            compress.Start();
         }
 
         private void Button_Init(object sender, RoutedEventArgs e)
@@ -124,10 +126,10 @@ namespace FolderArchive.UI
                 this.inputPath = ofd.FileName;
                 TB_InPutPath.Text = this.inputPath;
             }
-            AddLog("Add InputDir : " + this.inputPath);
+            Log("Add InputDir : " + this.inputPath);
 
             InitCompress();
-            AddLog("Create Book Object Start");
+            Log("Create Book Object Start");
         }
 
         private void BT_OutputPath_Click(object sender, RoutedEventArgs e)
@@ -146,7 +148,7 @@ namespace FolderArchive.UI
                 this.outputPath = ofd.FileName;
                 TB_OutPutPath.Text = this.outputPath;
             }
-            AddLog("Add outputDir : " + this.outputPath);
+            Log("Add outputDir : " + this.outputPath);
         }
 
         /* 테스트 코드 */
@@ -226,6 +228,13 @@ namespace FolderArchive.UI
         public bool CheckOutputPath()
         {
             return String.IsNullOrEmpty(outputPath);
+        }
+
+        public void Log(string log)
+        {
+            string tmp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            string time = "[" + tmp + "] : ";
+            TB_Log.Text += time + log + "\n";
         }
     }
 }

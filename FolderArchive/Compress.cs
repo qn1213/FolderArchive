@@ -20,14 +20,21 @@ namespace FolderArchive
         private int bookIndex = 0;
         
         protected UIwindow1 window;
+
         private Dictionary<int, Book> dic_book;
         private List<Book> list_exception_book;
+
+        private bool isFisrt = true;
+
+        private ILogs log;
 
         public Compress(UIwindow1 window)
         {
             dic_book = new Dictionary<int, Book>();
             list_exception_book = new List<Book>();
+
             this.window = window;
+            log = this.window;
         }
 
         public void InitPath()
@@ -38,14 +45,82 @@ namespace FolderArchive
 
         public void Start()
         {
+            // 테스트 코드
+            //foreach (KeyValuePair<int, Book> items in dic_book)
+            //{
+            //    int rndIndex = rnd.Next(1, 5);
+            //    items.Value.ChangeStatus((Utill.PROCESS_STAT)rndIndex);
+            //}
 
 
-            // 인풋 폴더안에 있는 만화, 화수 가져와서 객체화해서 뿌리기
+            // 찐 코드
+            StartLowSpec();
+        }
+
+        // 그냥 순차적으로 싱글쓰레드로 압축시키는 방식
+        private void StartLowSpec()
+        {
+            Dictionary<int, Book>.KeyCollection keys = dic_book.Keys;
+            foreach(int key in keys)
+            {
+                dic_book[key].ChangeStatus(Utill.PROCESS_STAT.PROCESS);
+
+                string outputBookFolderName = $"{outPutPath}\\{dic_book[key].bookName}";
+                DirectoryInfo outputBookFolder = new DirectoryInfo(outputBookFolderName);
+                if (!outputBookFolder.Exists)
+                    outputBookFolder.Create();
+
+                Part part = dic_book[key].parts;
+                for (int i = 0; i < part.partCnt; i++)
+                {
+                    string outputFileName = $"{outputBookFolderName}\\{part.partPathWithName[part.partPath[i]]}.zip";
+                    try
+                    {
+                        ZipFile.CreateFromDirectory(part.partPath[i], outputFileName);
+                        dic_book[key].ChangeStatus(Utill.PROCESS_STAT.PART_DONE, i);
+                    }
+                    catch (Exception ex)
+                    {
+                        dic_book[key].ChangeStatus(Utill.PROCESS_STAT.ERROR, i);
+                        window.AddLog($"{part.partPath[i]} is error. => {ex.Message}");
+                    }
+                }
+
+                dic_book[key].ChangeStatus(Utill.PROCESS_STAT.ALL_DONE);
+            }
+        }
+
+        private async Task<int> Zip()
+        {
+            var task = new Task<int>(() =>
+            {
+                int sum = 0;
+
+                return sum;
+            });
+
+            task.Start();
+            await task;
+
+            return task.Result;
+        }
+
+        public void Init()
+        {
+            if (!isFisrt)
+            {
+                window.jobProc.Children.Clear();
+                InitPath();
+                bookIndex = 0;
+                dic_book.Clear();
+                list_exception_book.Clear();
+            }
+            isFisrt = false;
         }
 
         public void SetBookObject()
         {
-            window.jobProc.Children.Clear();
+            Init();
 
             DirectoryInfo dirInfo = new DirectoryInfo(inputPath);
 
@@ -115,6 +190,13 @@ namespace FolderArchive
             try
             {
                 DirectoryInfo[] part = rootInfo.GetDirectories("*", SearchOption.TopDirectoryOnly);
+                if(part.Length <= 0)
+                {
+                    book.bookPath = rootInfo.FullName;
+                    book.Error = "Part count is 0. It's excluded.";
+                    return false;
+                }
+
                 book.SetObjectBookInfo(ref part, rootInfo.Name, rootInfo.FullName, ref window);
             }
             catch (Exception ex)
