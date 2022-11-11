@@ -10,6 +10,8 @@ using System.Windows.Controls;
 using System.IO;
 using System.Windows.Media;
 using System.Threading;
+using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace FolderArchive
 {
@@ -29,6 +31,14 @@ namespace FolderArchive
 
         private bool isFisrt = true;
 
+        private object lockCnt;
+        private object lockError;
+        private int procCnt = 0;
+        private bool isError = false;
+        private bool isDone = false;
+
+        // 여기까지
+
         public Compress(UIwindow1 window)
         {
             dic_book = new Dictionary<int, Book>();
@@ -36,6 +46,9 @@ namespace FolderArchive
             list_error_book = new List<Book>();
 
             this.window = window;
+
+            lockCnt = new object();
+            lockError = new object();
         }
 
         public void InitPath()
@@ -46,40 +59,98 @@ namespace FolderArchive
 
         public void Start()
         {
+            if(isDone)
+            {
+                MessageBox.Show("이전 작업기록이 있습니다. 초기화 후 눌러주세요!!");
+                return;
+            }
+
+            AddLog("===================== Press Start =====================");
+
             CheckExceptBook();
 
             // 멀티 스레드용
             StartCustomSpec();
             // 싱글 스레드용
-            StartLowSpec();
+            //StartLowSpec();
         }
 
         private void CheckExceptBook()
         {
+            int excpectPartCount = 0;
             Dictionary<int, Book>.KeyCollection keys = dic_book.Keys;
             foreach (int key in keys)
             {
                 if (dic_book[key].status == Utill.STATS.EXCEPT)
+                {
                     list_except_book.Add(dic_book[key].index);
+                    excpectPartCount += dic_book[key].parts.partCnt;
+                }
             }
 
             if(dic_book.Count == list_except_book.Count)
             {
                 MessageBox.Show("체크된 폴더가 없어요!");
-                window.AddLog("체크된 폴더가 없어요.");
+                AddLog("체크된 폴더가 없어요.");
             }
+
+            partCnt -= excpectPartCount;
+
+            var a = 0;
         }
 
         private void StartCustomSpec()
         {
-            // 쓰레드 조절
-            //ThreadPool.SetMinThreads(50, 100);
+            Dictionary<int, Book>.KeyCollection keys = dic_book.Keys;
+            foreach (int key in keys)
+            {
+                if (list_except_book.Contains(key))
+                    continue;
 
-            
+                dic_book[key].ChangeStatus(Utill.PROCESS_STAT.PROCESS);
+                dic_book[key].outputBookPath = $"{outPutPath}\\{dic_book[key].bookName}";
+                DirectoryInfo outputBookFolder = new DirectoryInfo(dic_book[key].outputBookPath);
+                if (!outputBookFolder.Exists)
+                    outputBookFolder.Create();
 
+                ThreadPool.QueueUserWorkItem(Archive, dic_book[key]);
+            }
         }
 
-              
+        private void Archive(object _book)
+        {
+            Book book = (Book)_book;
+
+            for(int i = 0; i < book.parts.partCnt; i++)
+            {
+                string outputFileName = $"{book.outputBookPath}\\{book.parts.partPathWithName[book.parts.partPath[i]]}.zip";
+                FileInfo checkFile = new FileInfo(outputFileName);
+                if (checkFile.Exists)
+                {
+                    book.ChangeStatus(Utill.PROCESS_STAT.ERROR, i);
+                    CheckError();
+                    CountProc();
+                    AddLog($"{book.parts.partPath[i]} => 파일이 이미 존재합니다.");
+                    continue;
+                }
+
+                try
+                {
+                    ZipFile.CreateFromDirectory(book.parts.partPath[i], outputFileName);
+                    book.ChangeStatus(Utill.PROCESS_STAT.PART_DONE, i);
+                }
+                catch (Exception ex)
+                {
+                    book.ChangeStatus(Utill.PROCESS_STAT.ERROR, i);
+                    CheckError();
+                    AddLog($"{book.parts.partPath[i]} is error. => {ex.Message}");
+                }
+                CountProc();
+            }
+
+            FinishCheck();
+        }
+
         private void StartLowSpec()
         {
             Dictionary<int, Book>.KeyCollection keys = dic_book.Keys;
@@ -103,7 +174,7 @@ namespace FolderArchive
                     if(checkFile.Exists)
                     {
                         dic_book[key].ChangeStatus(Utill.PROCESS_STAT.ERROR, i);
-                        window.AddLog($"{part.partPath[i]} => 파일이 이미 존재합니다.");
+                        AddLog($"{part.partPath[i]} => 파일이 이미 존재합니다.");
                         continue;
                     }
 
@@ -115,12 +186,66 @@ namespace FolderArchive
                     catch (Exception ex)
                     {
                         dic_book[key].ChangeStatus(Utill.PROCESS_STAT.ERROR, i);
-                        window.AddLog($"{part.partPath[i]} is error. => {ex.Message}");
+                        AddLog($"{part.partPath[i]} is error. => {ex.Message}");
                     }
                 }
-
                 dic_book[key].ChangeStatus(Utill.PROCESS_STAT.ALL_DONE);
             }
+        }
+
+        private void CountProc()
+        {
+            lock(lockCnt)
+            {
+                procCnt++;
+            }
+        }
+
+        private void CheckError()
+        {
+            lock(lockError)
+            {
+                isError = true;
+            }
+        }
+
+        private void FinishCheck()
+        {
+            lock(lockCnt)
+            {
+                if (procCnt == partCnt)
+                {
+                    Dictionary<int, Book>.KeyCollection keys = dic_book.Keys;
+                    foreach (int key in keys)
+                    {
+                         dic_book[key].ChangeStatus(Utill.PROCESS_STAT.ALL_DONE);
+                    }
+
+                    if (isError)
+                    {
+                        MessageBox.Show("에러가 나면서 완료 됐습니다. 로그를 확인해 주세요!");
+                        AddLog("===================== 에러나면서 끝남 =====================");
+                    }                    
+                    else
+                    {
+                        MessageBox.Show("끗");
+                        AddLog("===================== 완벽하게 끝남 =====================");
+                    }
+                        
+
+                    isDone = true;
+                }                    
+            }            
+        }
+
+        private void AddLog(string log)
+        {
+            string tmp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            string time = "[" + tmp + "] : ";
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() =>
+            {
+                window.TB_Log.Text += time + log + "\n";
+            }));
         }
 
         public void Init()
@@ -134,6 +259,11 @@ namespace FolderArchive
                 dic_book.Clear();
                 list_error_book.Clear();
                 list_except_book.Clear();
+
+                isDone = false;
+                isError = false;
+
+                procCnt = 0;
             }
             isFisrt = false;
         }
@@ -147,7 +277,7 @@ namespace FolderArchive
             if (!dirInfo.Exists)
             {
                 MessageBox.Show("경로가 잘못됐습니다!!");
-                window.AddLog("Fail to Get Input folder");
+                AddLog("Fail to Get Input folder");
                 return;
             }
 
@@ -166,7 +296,7 @@ namespace FolderArchive
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message);
-                    window.AddLog(ex.Message);
+                    AddLog(ex.Message);
                     throw;
                 }
             };
@@ -201,20 +331,20 @@ namespace FolderArchive
             }
 
             // 불러오기 성공/실패 목록 출력
-            window.AddLog("################ 로드한 폴더 ################");
+            AddLog("################ 로드한 폴더 ################");
             int logIndex = 1;
             foreach(KeyValuePair<int, Book> items in dic_book)
             {
-                window.AddLog(logIndex++ + ". : " + items.Value.bookPath);
+                AddLog(logIndex++ + ". : " + items.Value.bookPath);
             }
 
             if(list_error_book.Count > 0)
             {
-                window.AddLog("################ 로드 실패한 폴더 ################");
+                AddLog("################ 로드 실패한 폴더 ################");
                 logIndex = 1;
                 foreach (Book items in list_error_book)
                 {
-                    window.AddLog(logIndex++ + ". : " + items.bookPath + " => " + items.Error);
+                    AddLog(logIndex++ + ". : " + items.bookPath + " => " + items.Error);
                 }
             }            
         }
@@ -237,12 +367,11 @@ namespace FolderArchive
             catch (Exception ex)
             {
                 book.Error = ex.Message;
-                window.AddLog("### 이게 보이면 issue 등록좀 ###");
-                window.AddLog(book.Error);
-                window.AddLog("################################");
+                AddLog("### 이게 보이면 issue 등록좀 ###");
+                AddLog(book.Error);
+                AddLog("################################");
                 return false;
             }
-
             return true;
         }
     }

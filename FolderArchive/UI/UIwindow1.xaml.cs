@@ -60,6 +60,7 @@ namespace FolderArchive.UI
                 outputPath = defaultOutputPath;
             }
             TB_OutPutPath.Text = outputPath;
+
             Log("Init Program");
         }
 
