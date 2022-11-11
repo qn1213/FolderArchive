@@ -12,6 +12,7 @@ using System.Windows.Threading;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Xml.Linq;
 using System.Windows;
+using System.Windows.Input;
 
 namespace FolderArchive
 {
@@ -30,7 +31,7 @@ namespace FolderArchive
         public Expander expander;        
 
         public int index = 0;
-        public int status = 0; // 0 = 대기, 1 = 완료, -1 = 오류
+        public Utill.STATS status = 0; // 0 = 대기, 1 = 완료, 2 = 제외, -1 = 오류
 
         public string bookName = null;
         public string bookName64 = null;
@@ -76,6 +77,8 @@ namespace FolderArchive
             checkBox = new CheckBox();
             checkBox.Name = bookName64;
             checkBox.Margin = new System.Windows.Thickness(5);
+            checkBox.IsChecked = true;
+            checkBox.Click += OnCheckBoxClick;
             wrapPanel.Children.Add(checkBox);
 
             stackPanel = new StackPanel();
@@ -102,9 +105,10 @@ namespace FolderArchive
             window.jobProc.Children.Add(wrapPanel);
         }
 
-        public void SetObjectPartsInfo()
+        public void OnCheckBoxClick(object sender, RoutedEventArgs e)
         {
-
+            status = status == Utill.STATS.EXCEPT ? Utill.STATS.WAIT : Utill.STATS.EXCEPT;
+            MessageBox.Show(status.ToString());
         }
 
         public string GetBase64Name(BASE_TYPE type, string partName = null)

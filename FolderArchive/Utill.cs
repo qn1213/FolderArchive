@@ -13,6 +13,14 @@ namespace FolderArchive
             ERROR,        // 파트중 에러나면 폴더이름에 에러띄움
         }
 
+        public enum STATS
+        {
+            ERROR = -1,
+            WAIT = 0,
+            DONE,
+            EXCEPT
+        }
+
         public static string Convert64(string msg)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(msg);
