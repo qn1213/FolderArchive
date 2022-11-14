@@ -1,16 +1,11 @@
 ﻿using FolderArchive.UI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.IO.Compression;
 using System.Windows.Controls;
 using System.IO;
-using System.Windows.Media;
 using System.Threading;
-using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace FolderArchive
@@ -25,9 +20,9 @@ namespace FolderArchive
 
         protected UIwindow1 window;
 
-        private Dictionary<int, Book> dic_book;// 불러온 모든거
-        private List<int> list_except_book; // 제외할거(체크 푼거)
-        private List<Book> list_error_book;    // 오류난거
+        private Dictionary<int, Book> dic_book; // 불러온 모든거
+        private List<int> list_except_book;     // 제외할거(체크 푼거)
+        private List<Book> list_error_book;     // 오류난거
 
         private bool isFisrt = true;
 
@@ -55,7 +50,7 @@ namespace FolderArchive
             outPutPath = window.outputPath;
         }
 
-        public void Start(bool isLowSpec)
+        public void Start(bool isLowSpec, int threadCnt)
         {
             if(isDone)
             {
@@ -71,7 +66,7 @@ namespace FolderArchive
             if(isLowSpec)
                 StartLowSpec();
             else
-                StartCustomSpec();
+                StartCustomSpec(threadCnt);
         }
 
         private void CheckExceptBook()
@@ -94,12 +89,12 @@ namespace FolderArchive
             }
 
             partCnt -= excpectPartCount;
-
-            var a = 0;
         }
 
-        private void StartCustomSpec()
+        private void StartCustomSpec(int threadCnt)
         {
+            ThreadPool.SetMinThreads(threadCnt, threadCnt + 10);
+
             Dictionary<int, Book>.KeyCollection keys = dic_book.Keys;
             foreach (int key in keys)
             {
@@ -152,6 +147,8 @@ namespace FolderArchive
 
         private void StartLowSpec()
         {
+            bool isError = false;
+
             Dictionary<int, Book>.KeyCollection keys = dic_book.Keys;
             foreach(int key in keys)
             {
@@ -173,6 +170,7 @@ namespace FolderArchive
                     if(checkFile.Exists)
                     {
                         dic_book[key].ChangeStatus(Utill.PROCESS_STAT.ERROR, i);
+                        isError = true;
                         AddLog($"{part.partPath[i]} => 파일이 이미 존재합니다.");
                         continue;
                     }
@@ -185,10 +183,22 @@ namespace FolderArchive
                     catch (Exception ex)
                     {
                         dic_book[key].ChangeStatus(Utill.PROCESS_STAT.ERROR, i);
+                        isError = true;
                         AddLog($"{part.partPath[i]} is error. => {ex.Message}");
                     }
                 }
                 dic_book[key].ChangeStatus(Utill.PROCESS_STAT.ALL_DONE);
+            }
+
+            if(isError)
+            {
+                MessageBox.Show("에러가 나면서 완료 됐습니다. 로그를 확인해 주세요!");
+                AddLog("===================== 에러나면서 끝남 =====================");
+            }
+            else
+            {
+                MessageBox.Show("끗");
+                AddLog("===================== 완벽하게 끝남 =====================");
             }
         }
 

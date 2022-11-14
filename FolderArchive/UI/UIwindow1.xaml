@@ -591,7 +591,7 @@
                                                     VerticalAlignment="Center">
 
                                             <TextBox x:Name="xn_TextboxThreadCnt"
-                                                     Width="60"
+                                                     Width="70"
                                                      MaxHeight="45"
                                                      Margin="10"
                                                      HorizontalAlignment="Left"
@@ -605,7 +605,7 @@
                                                      LostFocus="CheckCntRange"
                                                      />
                                             
-                                            <TextBlock Text="멀티쓰레드 수(최소 3, 최대 100)"
+                                            <TextBlock Text="멀티쓰레드 수(최소 4, 최대 1023)"
                                                        Foreground="Black"
                                                        Width="273"
                                                        Margin="5,0,0,0"

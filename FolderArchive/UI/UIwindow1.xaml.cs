@@ -1,18 +1,13 @@
 ﻿using FastHDLsearch.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.IO;
 using System.Text.RegularExpressions;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Windows.Input;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace FolderArchive.UI
 {
@@ -24,7 +19,6 @@ namespace FolderArchive.UI
         private bool isLowSpec = false;
         private int threadCnt = 0;
 
-        //private string saveFilePath = "config.sav";
         private string configPath = "config.json";
         private string defaultOutputPath;
         public string inputPath;
@@ -136,7 +130,7 @@ namespace FolderArchive.UI
                 MessageBox.Show("압축할 폴더를 불러와주세요!");
                 return;
             }
-            compress.Start(isLowSpec);
+            compress.Start(isLowSpec, threadCnt);
         }
 
         private void Button_Init(object sender, RoutedEventArgs e)
@@ -214,9 +208,9 @@ namespace FolderArchive.UI
             if (string.IsNullOrEmpty(text)) return;
 
             int tmpCnt = Int32.Parse(text);
-            if (tmpCnt < 3 || tmpCnt > 100)
+            if (tmpCnt < 4 || tmpCnt > 1023)
             {
-                MessageBox.Show("3~100 사이로 입력 가능합니다!");
+                MessageBox.Show("4 ~ 1023 사이로 입력 가능합니다!");
                 ((TextBox)sender).Text = "";
                 return;
             }
