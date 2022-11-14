@@ -7,18 +7,26 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.IO;
+using System.Text.RegularExpressions;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Windows.Input;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FolderArchive.UI
 {
     public partial class UIwindow1 : Window, ILogs
     {
-        Button[] tabbuttons;
-        FileInfo saveFile;
+        private Button[] tabbuttons;
 
-        Compress compress;
+        private Compress compress;
+        private bool isLowSpec = false;
+        private int threadCnt = 0;
 
-        string saveFilePath = "config.sav";
-        string defaultOutputPath;
+        //private string saveFilePath = "config.sav";
+        private string configPath = "config.json";
+        private string defaultOutputPath;
         public string inputPath;
         public string outputPath;
 
@@ -35,38 +43,64 @@ namespace FolderArchive.UI
 
         private void DoProgramStartInit()
         {
-            saveFile = new FileInfo(saveFilePath);
-            FileStream fs = null;
-            if(!saveFile.Exists)
-            {
-                fs = saveFile.Create();
-                fs.Close();
-            }
-
-            fs = saveFile.OpenRead();
-            StreamReader sr = new StreamReader(fs);
-            inputPath = sr.ReadLine();
-            outputPath = sr.ReadLine();
-
             defaultOutputPath = Directory.GetParent(Environment.CurrentDirectory).Parent.FullName + "\\output";
             DirectoryInfo di = new DirectoryInfo(defaultOutputPath);
             if (di.Exists == false)
                 di.Create();
 
-            TB_InPutPath.Text = CheckInputPath() == true ? "Select Input Folder" : inputPath;
-            if (CheckOutputPath())
+            if (!File.Exists(configPath))
             {
-                TB_OutPutPath.Text = defaultOutputPath;
-                outputPath = defaultOutputPath;
+                JObject configData;
+                using (File.Create(configPath))
+                {
+                    configData = new JObject
+                    {
+                        new JProperty("inputpath", ""),
+                        new JProperty("outputpath", defaultOutputPath),
+                        new JProperty("islowspec", "false"),
+                        new JProperty("threadcnt", "20")
+                    };
+                }
+
+                File.WriteAllText(configPath, configData.ToString());
+                Log("Create Config.json");
+
+                inputPath = String.Empty;
             }
-            TB_OutPutPath.Text = outputPath;
+            else
+            {
+                using (StreamReader file = File.OpenText(configPath))
+                {
+                    using (JsonTextReader reader = new JsonTextReader(file))
+                    {
+                        JObject json = (JObject)JToken.ReadFrom(reader);
+
+                        inputPath = json["inputpath"].ToString();
+                        outputPath = json["outputpath"].ToString();
+                        isLowSpec = (bool)json["islowspec"];
+                        threadCnt = (int)json["threadcnt"];
+
+                        xn_TextboxPath.Text = outputPath;
+                        xn_isLowSpec.IsChecked = isLowSpec;
+
+                        xn_TextboxThreadCnt.Text = threadCnt.ToString();
+                        xn_TextboxThreadCnt.IsEnabled = isLowSpec ? false : true;
+                    }
+                }
+            }
+
+            TB_InPutPath.Text = isCheckPathNull() == true ? "Select Input Folder" : inputPath;
+            
+            if (isOutputPathNull())
+                outputPath = defaultOutputPath;
+            TB_OutPutPath.Text = outputPath;  
 
             Log("Init Program");
         }
 
         private void DoInit()
         {
-            if (CheckInputPath() == false)
+            if (isCheckPathNull() == false)
             {
                 InitCompress();
             }                
@@ -97,16 +131,19 @@ namespace FolderArchive.UI
 
         private void Button_Start_Click(object sender, RoutedEventArgs e)
         {
-            if(CheckInputPath() || compress.bookIndex == 0)
+            if(isCheckPathNull() || compress.bookIndex == 0)
             {
                 MessageBox.Show("압축할 폴더를 불러와주세요!");
                 return;
             }
-            compress.Start();
+            compress.Start(isLowSpec);
         }
 
         private void Button_Init(object sender, RoutedEventArgs e)
         {
+            if (compress == null)
+                return;
+
             ClearLog();
             compress.Init();
         }
@@ -146,46 +183,6 @@ namespace FolderArchive.UI
             Log("Add outputDir : " + this.outputPath);
         }
 
-        /* 테스트 코드 */
-        public int index = 0;
-        public Dictionary<int, StackPanel> process;
-
-        private void Button_test_Click(object sender, RoutedEventArgs e)
-        {
-            Random rnd = new Random();
-            int partCnt = rnd.Next(1, 10);
-
-            WrapPanel wrapPanel = new WrapPanel();
-
-            CheckBox checkBox = new CheckBox();
-            checkBox.Name = "check_" + index;
-            checkBox.IsChecked = true;
-            checkBox.Margin = new Thickness(5);
-            wrapPanel.Children.Add(checkBox);
-
-            StackPanel partPanel = new StackPanel();
-            partPanel.Margin = new Thickness(10, 4, 0, 0);
-            partPanel.Name = "stack_book_" + index;
-
-            for(int i = 0; i < partCnt; i++)
-            {
-                Label name = new Label();
-                name.Content = (i + 1) + "화";
-                name.Name = "label_" + index + "_" + i;
-                partPanel.Children.Add(name);
-            }
-
-            Expander expander = new Expander();
-            expander.Name = "expander_" + index++;
-            expander.Header = index + " (" + partCnt + ")";
-            expander.Content = partPanel;
-            expander.Foreground = Brushes.Green;
-
-            wrapPanel.Children.Add(expander);
-
-            jobProc.Children.Add(wrapPanel);
-        }
-
         public void AddLog(string log)
         {
             string tmp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
@@ -198,29 +195,66 @@ namespace FolderArchive.UI
             TB_Log.Text = "";
         }
 
-        private void SaveConfig(string input = null, string output = null)
+        private static readonly Regex _regex = new Regex("[^0-9]+");
+        private void CheckDigit(object sender, TextChangedEventArgs e)
         {
-            FileStream fs = saveFile.OpenWrite();
-            TextWriter tw = new StreamWriter(fs);
+            string text = ((TextBox)sender).Text;
 
-            tw.WriteLine(input);
-            tw.Write(output);
+            if(_regex.IsMatch(text))
+            {
+                MessageBox.Show("숫자만 입력가능해요!");
+                ((TextBox)sender).Text = "";
+                return;
+            }
+        }
 
-            tw.Close();
-            fs.Close();
+        private void CheckCntRange(object sender, EventArgs e)
+        {
+            string text = ((TextBox)sender).Text;
+            if (string.IsNullOrEmpty(text)) return;
+
+            int tmpCnt = Int32.Parse(text);
+            if (tmpCnt < 3 || tmpCnt > 100)
+            {
+                MessageBox.Show("3~100 사이로 입력 가능합니다!");
+                ((TextBox)sender).Text = "";
+                return;
+            }
+
+            threadCnt = tmpCnt;
+        }
+
+        private void SaveConfig()
+        {
+            string json = File.ReadAllText(configPath);
+            dynamic jsonObj = JsonConvert.DeserializeObject(json);
+            jsonObj["inputpath"] = inputPath;
+            jsonObj["outputpath"] = outputPath;
+            jsonObj["islowspec"] = isLowSpec;
+            jsonObj["threadcnt"] = threadCnt;
+
+            string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            File.WriteAllText(configPath, output);
+        }
+
+        private void CheckLowSpecMode(object sender, EventArgs e)
+        {
+            isLowSpec = xn_isLowSpec.IsChecked.GetValueOrDefault();
+            
+            xn_TextboxThreadCnt.IsEnabled = isLowSpec ? false : true;
         }
 
         private void DoClosed(object sender, EventArgs e)
         {
-            SaveConfig(CheckInputPath() ? null : inputPath, CheckOutputPath() ? defaultOutputPath : outputPath);
+            SaveConfig();
         }
 
-        public bool CheckInputPath()
+        public bool isCheckPathNull()
         {
             return String.IsNullOrEmpty(inputPath);
         }
 
-        public bool CheckOutputPath()
+        public bool isOutputPathNull()
         {
             return String.IsNullOrEmpty(outputPath);
         }

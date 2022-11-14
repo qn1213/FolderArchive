@@ -37,8 +37,6 @@ namespace FolderArchive
         private bool isError = false;
         private bool isDone = false;
 
-        // 여기까지
-
         public Compress(UIwindow1 window)
         {
             dic_book = new Dictionary<int, Book>();
@@ -57,7 +55,7 @@ namespace FolderArchive
             outPutPath = window.outputPath;
         }
 
-        public void Start()
+        public void Start(bool isLowSpec)
         {
             if(isDone)
             {
@@ -69,10 +67,11 @@ namespace FolderArchive
 
             CheckExceptBook();
 
-            // 멀티 스레드용
-            StartCustomSpec();
-            // 싱글 스레드용
-            //StartLowSpec();
+
+            if(isLowSpec)
+                StartLowSpec();
+            else
+                StartCustomSpec();
         }
 
         private void CheckExceptBook()

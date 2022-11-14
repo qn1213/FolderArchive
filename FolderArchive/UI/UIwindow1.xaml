@@ -495,18 +495,6 @@
                                     Style="{DynamicResource SearchButton}"
                                     Click="Button_Init"
                                     Background="White"/>
-
-                            <Button Height="40"
-                                    Margin="100,5,100,10"
-                                    Visibility="Visible"
-                                    Content="{iconPacks:Codicons Kind=DebugAlt,
-                                                                 Width=25,
-                                                                 Height=20}"
-                                    FontFamily="Poppins"
-                                    FontWeight="Regular"
-                                    Style="{DynamicResource SearchButton}"
-                                    Click="Button_test_Click"/>
-
                         </StackPanel>
                     </Grid>
                 </TabItem>
@@ -535,9 +523,10 @@
                                         Margin="10,10,10,0"
                                         Style="{DynamicResource SettingsElementStyle}">
                                     <StackPanel>
-                                        <TextBlock Text="Path"
+                                        <TextBlock x:Name="xn_TextBoxBlock"
+                                                   Text="Config Path"
                                                    Foreground="Black"
-                                                   Width="64"
+                                                   Width="100"
                                                    Height="21"
                                                    Margin="10,0,0,0"
                                                    HorizontalAlignment="Left"
@@ -557,49 +546,66 @@
                                                      HorizontalScrollBarVisibility="Disabled"
                                                      ScrollViewer.CanContentScroll="True"
                                                      TextWrapping="Wrap"
-                                                     VerticalScrollBarVisibility="Auto"/>
-                                            <Button x:Name="xn_BTpath"
-                                                    Width="22"
-                                                    Height="18"
-                                                    Margin="561,0,0,0"
-                                                    HorizontalAlignment="Left"
-                                                    VerticalAlignment="Center"
-                                                    BorderThickness="0"
-                                                    Opacity="1"
-                                                    Content="{iconPacks:Material Kind=Folder,
-                                                                                 Width=16}"
-                                                    Style="{DynamicResource TabButtonStyle}"/>
+                                                     VerticalScrollBarVisibility="Auto"
+                                                     IsReadOnly="True"
+                                                     />
                                         </Grid>
-
                                     </StackPanel>
                                 </Border>
 
                                 <Border Margin="10,0,10,0" Style="{DynamicResource SettingsElementStyle}">
                                     <StackPanel>
-
                                         <TextBlock FontSize="16"
-                                                   Text="Search Wrapping"
+                                                   Text="Settings"
                                                    Foreground="Black"
                                                    Margin="10,9,0,0"/>
-
-
 
                                         <StackPanel Orientation="Horizontal"
                                                     Margin="0,10,0,0"
                                                     VerticalAlignment="Center">
-                                            <CheckBox x:Name="xn_isSearchWrapping"
+                                            <CheckBox x:Name="xn_isLowSpec"
                                                       Margin="10,0,0,0"
                                                       FontSize="14"
                                                       HorizontalAlignment="Left"
                                                       VerticalAlignment="Top"
                                                       VerticalContentAlignment="Center"
+                                                      Click="CheckLowSpecMode"
                                                       Style="{DynamicResource styleCustomCheckBox}">
                                                 <CheckBox.LayoutTransform>
                                                     <ScaleTransform ScaleX="1" ScaleY="1"/>
                                                 </CheckBox.LayoutTransform>
                                             </CheckBox>
 
-                                            <TextBlock Text="검색시 각 항목을 ()로 감싸줍니다."
+                                            <TextBlock Text="저사양 모드 (싱글 쓰레드 모드로 순차적으로 압축됨)"
+                                                       Foreground="Black"
+                                                       Width="300"
+                                                       Margin="5,0,0,0"
+                                                       HorizontalAlignment="Left"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="12"
+                                                       TextAlignment="Left"/>                                            
+                                        </StackPanel>
+
+                                        <StackPanel Orientation="Horizontal"
+                                                    Margin="0,10,0,0"
+                                                    VerticalAlignment="Center">
+
+                                            <TextBox x:Name="xn_TextboxThreadCnt"
+                                                     Width="60"
+                                                     MaxHeight="45"
+                                                     Margin="10"
+                                                     HorizontalAlignment="Left"
+                                                     VerticalAlignment="Top"
+                                                     Padding="0,0,30,0"
+                                                     HorizontalScrollBarVisibility="Disabled"
+                                                     ScrollViewer.CanContentScroll="True"
+                                                     TextWrapping="Wrap"
+                                                     VerticalScrollBarVisibility="Auto"
+                                                     TextChanged="CheckDigit"
+                                                     LostFocus="CheckCntRange"
+                                                     />
+                                            
+                                            <TextBlock Text="멀티쓰레드 수(최소 3, 최대 100)"
                                                        Foreground="Black"
                                                        Width="273"
                                                        Margin="5,0,0,0"
@@ -607,6 +613,7 @@
                                                        VerticalAlignment="Center"
                                                        FontSize="12"
                                                        TextAlignment="Left"/>
+
                                         </StackPanel>
 
                                     </StackPanel>
