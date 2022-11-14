@@ -52,7 +52,7 @@ namespace FolderArchive.UI
                         new JProperty("inputpath", ""),
                         new JProperty("outputpath", defaultOutputPath),
                         new JProperty("islowspec", "false"),
-                        new JProperty("threadcnt", "20")
+                        new JProperty("threadcnt", 20)
                     };
                 }
 
@@ -73,12 +73,6 @@ namespace FolderArchive.UI
                         outputPath = json["outputpath"].ToString();
                         isLowSpec = (bool)json["islowspec"];
                         threadCnt = (int)json["threadcnt"];
-
-                        xn_TextboxPath.Text = outputPath;
-                        xn_isLowSpec.IsChecked = isLowSpec;
-
-                        xn_TextboxThreadCnt.Text = threadCnt.ToString();
-                        xn_TextboxThreadCnt.IsEnabled = isLowSpec ? false : true;
                     }
                 }
             }
@@ -87,7 +81,13 @@ namespace FolderArchive.UI
             
             if (isOutputPathNull())
                 outputPath = defaultOutputPath;
-            TB_OutPutPath.Text = outputPath;  
+            TB_OutPutPath.Text = outputPath;
+
+            xn_TextboxPath.Text = outputPath;
+            xn_isLowSpec.IsChecked = isLowSpec;
+
+            xn_TextboxThreadCnt.Text = threadCnt.ToString();
+            xn_TextboxThreadCnt.IsEnabled = isLowSpec ? false : true;
 
             Log("Init Program");
         }
